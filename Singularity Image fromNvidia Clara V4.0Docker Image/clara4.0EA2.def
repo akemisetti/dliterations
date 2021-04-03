@@ -1,0 +1,53 @@
+Bootstrap: docker-archive
+From: /home/akemisetti/mydev/containers/clara-train-sdkv4.0.img
+
+%environment
+    PYTHONPATH=/home/akemisetti/mydev/fastMRI:$PYTHONPATH
+    export PYTHONPATH
+
+%post
+    # python section
+    wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key| apt-key add -
+    apt-get update
+    apt-get install -y  python3-pip
+    apt install -y lsb-release wget software-properties-common
+    apt-get install -y clang-10 lldb-10 lld-10
+    apt-get install -y libllvm-10-ocaml-dev libllvm10 \
+    llvm-10 llvm-10-dev llvm-10-doc llvm-10-examples llvm-10-runtime
+    ln -s /usr/bin/llvm-config-10 /usr/bin/llvm-config
+    pip3 install pytest
+    pip3 install pylint
+    pip3 install scikit-learn
+    pip3 install pillow
+    pip3 install jupyterlab-nvdashboard
+    pip3 install sigpy
+    pip3 install ipympl
+    pip3 install ipywidgets
+    pip3 install itkwidgets
+    echo ------------------
+    echo -- fix bokeh issue downgrad to 1.4.0
+    pip3 uninstall -y bokeh
+    pip3 install bokeh==1.4.0
+    echo ------------------ bokeh installed
+    # install nodejs
+    curl -sL https://deb.nodesource.com/setup_12.x | bash -
+    apt-get update && apt-get install -y build-essential nodejs
+    # fixing python version back to python3
+    unlink /usr/bin/python
+    ln -s /usr/bin/python3 /usr/bin/python
+    python --version
+    echo -------------------------
+    nodejs --version
+    which node
+    pip3 install jupyterlab==1.0.0
+    python -c "from shutil import which; print(which('node'))"
+    python -c "from jupyterlab.jlpmapp import which; print(which('node'))"
+    which npm
+    npm --version
+    echo -------------------------
+    jupyter labextension install jupyterlab-nvdashboard
+    echo ------------------
+    echo ------jupyterlab intallation completed
+    jupyter lab build
+    echo ------------------
+    echo "Container build done!" 
